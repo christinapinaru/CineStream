@@ -28,3 +28,17 @@ lib/
 │ └── custom_button.dart
 ├── constants.dart
 └── main.dart
+
+📱 Screenshots
+<img width="953" height="442" alt="image" src="https://github.com/user-attachments/assets/95b3e894-c036-4e35-b817-4b2e7836d0b2" />
+
+🤝 Contributing
+Contributions are welcome! Feel free to submit a Pull Request.
+
+👨‍💻 Author
+Christina Pinaru
+
+GitHub: @christinapinaru
+
+⭐ Show your support
+Give a ⭐️ if this project helped you!
