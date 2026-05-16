@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../constants.dart';
+import '../services/api_service.dart';
+import '../services/storage_service.dart';
 import 'register_screen.dart';
 import 'forgot_password_screen.dart';
+import 'home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -16,36 +19,76 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _passwordController = TextEditingController();
   bool _isPasswordVisible = false;
   bool _rememberMe = false;
+  bool _isLoading = false;
 
-  void _showLoginSuccess() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          backgroundColor: AppConstants.cardColor,
-          title: const Icon(Icons.check_circle, color: Colors.green, size: 50),
-          content: Text(
-            "Login Successful!",
-            style: GoogleFonts.poppins(color: AppConstants.textColor),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-                // Navigate to main screen when you create it
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Welcome to CineStream!')),
-                );
-              },
-              child: Text(
-                "OK",
-                style: GoogleFonts.poppins(color: AppConstants.primaryColor),
-              ),
-            ),
-          ],
-        );
-      },
+  Future<void> _handleLogin() async {
+    // Validation
+    if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter email and password')),
+      );
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    // API Call
+    final response = await ApiService.login(
+      email: _emailController.text.trim(),
+      password: _passwordController.text,
     );
+
+    setState(() {
+      _isLoading = false;
+    });
+
+    if (response['success'] == true) {
+      if (mounted) {
+        // Show success dialog
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              backgroundColor: AppConstants.cardColor,
+              title: const Icon(Icons.check_circle, color: Colors.green, size: 50),
+              content: Text(
+                "Login Successful!",
+                style: GoogleFonts.poppins(color: AppConstants.textColor),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    // Navigate to home screen
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => const HomeScreen()),
+                    );
+                  },
+                  child: Text(
+                    "OK",
+                    style: GoogleFonts.poppins(color: AppConstants.primaryColor),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      }
+    } else {
+      // Show error
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(response['message'] ?? 'Login failed'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   @override
@@ -92,8 +135,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 50),
                 
+                // Email Field
                 Text(
-                  "User Name/Email ID",
+                  "Email ID",
                   style: GoogleFonts.poppins(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
@@ -109,8 +153,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: TextField(
                     controller: _emailController,
                     style: const TextStyle(color: AppConstants.textColor),
+                    keyboardType: TextInputType.emailAddress,
                     decoration: InputDecoration(
-                      hintText: "Enter your email or username",
+                      hintText: "Enter your email",
                       hintStyle: TextStyle(color: AppConstants.subtitleColor),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -123,6 +168,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 20),
                 
+                // Password Field
                 Text(
                   "Password",
                   style: GoogleFonts.poppins(
@@ -166,6 +212,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 12),
                 
+                // Remember Me & Forgot Password
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -187,7 +234,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          "Remember Password",
+                          "Remember Me",
                           style: GoogleFonts.poppins(
                             fontSize: 12,
                             color: AppConstants.subtitleColor,
@@ -215,29 +262,40 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 30),
                 
+                // Login Button
                 SizedBox(
                   width: double.infinity,
                   height: 55,
                   child: ElevatedButton(
-                    onPressed: _showLoginSuccess,
+                    onPressed: _isLoading ? null : _handleLogin,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppConstants.primaryColor,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    child: Text(
-                      "Login",
-                      style: GoogleFonts.poppins(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
-                    ),
+                    child: _isLoading
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                            ),
+                          )
+                        : Text(
+                            "Login",
+                            style: GoogleFonts.poppins(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ),
+                          ),
                   ),
                 ),
                 const SizedBox(height: 20),
                 
+                // Register Link
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -255,7 +313,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         );
                       },
                       child: Text(
-                        "Sign up Now",
+                        "Create Account",
                         style: GoogleFonts.poppins(
                           color: AppConstants.primaryColor,
                           fontWeight: FontWeight.w600,

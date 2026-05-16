@@ -12,6 +12,10 @@ dependencies:
   cupertino_icons: ^1.0.6
   google_fonts: ^6.1.0
   flutter_svg: ^2.0.9
+  
+  # ব্যাকএন্ড সংযোগের জন্য যোগ করুন
+  http: ^1.1.0
+  shared_preferences: ^2.2.2
 
 dev_dependencies:
   flutter_test:
