@@ -6,6 +6,7 @@ import '../services/storage_service.dart';
 import 'register_screen.dart';
 import 'forgot_password_screen.dart';
 import 'home_screen.dart';
+import 'admin/admin_dashboard.dart';  // যোগ করুন
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -45,6 +46,8 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     if (response['success'] == true) {
+      final email = _emailController.text.trim();
+      
       if (mounted) {
         // Show success dialog
         showDialog(
@@ -62,11 +65,21 @@ class _LoginScreenState extends State<LoginScreen> {
                 TextButton(
                   onPressed: () {
                     Navigator.pop(context);
-                    // Navigate to home screen
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => const HomeScreen()),
-                    );
+                    
+                    // Check if admin login
+                    if (email == 'admin@cinestream.com') {
+                      // Navigate to Admin Dashboard
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => const AdminDashboard()),
+                      );
+                    } else {
+                      // Navigate to User Home Screen
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => const HomeScreen()),
+                      );
+                    }
                   },
                   child: Text(
                     "OK",
@@ -95,7 +108,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
@@ -156,7 +169,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     keyboardType: TextInputType.emailAddress,
                     decoration: InputDecoration(
                       hintText: "Enter your email",
-                      hintStyle: TextStyle(color: AppConstants.subtitleColor),
+                      hintStyle: const TextStyle(color: AppConstants.subtitleColor),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide.none,
@@ -189,7 +202,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     style: const TextStyle(color: AppConstants.textColor),
                     decoration: InputDecoration(
                       hintText: "Enter your password",
-                      hintStyle: TextStyle(color: AppConstants.subtitleColor),
+                      hintStyle: const TextStyle(color: AppConstants.subtitleColor),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide.none,
